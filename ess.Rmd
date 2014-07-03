@@ -1,0 +1,189 @@
+Religiosity and views towards homosexuality
+===========================================
+
+```{r libraries}
+library(foreign) # To read SPSS data -> read.spss
+library(ggplot2) # Plotting system
+library(plyr) # mapvalues function
+library(gridExtra) # Grid plotting for ggplot2
+```
+
+### Introduction
+The European Social Survey - ESS -  is an academically driven cross-national survey that has been conducted every two years across Europe since 2001. The survey measures the attitudes, beliefs and behaviour patterns of diverse populations in more than thirty nations. The [sampling](http://www.europeansocialsurvey.org/docs/round6/methods/ESS6_sampling_guidelines.pdf) [methodology](http://www.europeansocialsurvey.org/methodology/index.html) to carry it out follows this key principals:
+
+- Samples must be representative of all persons aged 15 and over (no upper age limit) resident within private households in each country, regardless of their nationality, citizenship or language
+- Individuals are selected by strict random probability methods at every stage
+- Sampling frames of individuals, households and addresses may be used
+- All countries must aim for a minimum 'effective achieved sample size' of 1,500 or 800 in countries with ESS populations of less than 2 million after discounting for design effects
+- Quota sampling is not permitted at any stage
+- Substitution of non-responding households or individuals (whether 'refusals', 'non-contacts' or 'ineligibles') is not permitted at any stage
+
+The data used in this study corresponds to the year [2012](http://www.europeansocialsurvey.org/download.html?file=ESS6e02&y=2012). The study collected information on 586 [variables](http://nesstar.ess.nsd.uib.no/webview/) across 24 countries, resulting in a data set that contains 44,243 observations.
+
+The data can be downloaded for widely known and used statistical software packages (SAS, SPSS and STATA). In this case the SPSS file was downloaded and loaded into R using the 'foreign' package, which coerced some of the observations into N/As, namely the observations corresponding to those who: refused to answer, did not know or did not answer. This causes the warnings that can be seen when the data is read. Although this information could, perhaps, be useful to spot some relationships, given the scope of this study they will not be taken into consideration.
+
+```{r read_data}
+ess_raw <- read.spss('/Users/juancarlos/Copy/R Projects/dasi_project/raw_data/ESS6e01_2.sav',
+                     use.value.labels = TRUE,
+                     to.data.frame = TRUE)
+
+# Create a data frame and include only the selected variables for the study
+ess <- data.frame(ess_raw[c("cntry","rlgdgr", "freehms")])
+
+# Omit NA values
+ess <- na.omit(ess)
+```
+
+----------
+
+### Data
+
+This observational study will attempt to answer the question **is there a relationship between religiosity and homosexual intolerance?** This will be done by investigating the correlation (or lack thereof) between the followingn variables:
+
+- **rlgdgr** - The explanatory variable, "how religious are you" is a categorical variable that follows an ordinal scale from 0, not at all religious, to 10, very religious. It contains a total of 43,820 valid observations and 423 missing cases.
+```{r var_religiosity}
+# Order the factors within the variable
+ess$rlgdgr <- ordered(ess$rlgdgr,
+                      levels = c( "Not at all religious", "1", "2", "3", "4", "5",
+                                  "6", "7", "8", "9", "Very religious"))
+
+# Transform to an ordinal scale from 0 to 10
+ess$rlgdgr <- mapvalues(ess$rlgdgr,
+                        from=c("Not at all religious", "Very religious"),
+                        to=c("0", "10"))
+```
+
+- **freehms** - The response variable, "gays and lesbians free to live life as they wish" is a categorical variable that follows an ordinal scale from 1, agree strongly, to 5, disagree strongly. It contains a total of 42,098 valid observations and 2145 missing cases. **Please note** how it has been originally ordered in an increasing degree of intolerance, 1 being the most tolerant, and 5 the least.
+```{r var_homophoby}
+# Order the factors within the variable
+ess$freehms <- ordered(ess$freehms,
+                       levels = c("Agree strongly", "Agree", "Neither agree nor disagree",
+                                  "Disagree", "Disagree strongly"))
+
+# Transform to an ordinal scale from 1 to 5
+ess$freehms <- mapvalues(ess$freehms,
+                         from=c("Agree strongly", "Agree", "Neither agree nor disagree",
+                                "Disagree", "Disagree strongly"),
+                         to=c("1", "2", "3", "4", "5"))
+```
+
+As samples have been collected to "be representative of all persons aged 15 and over (no upper age limit) resident within private households in each country, regardless of their nationality, citizenship or language", we can generalize to the whole population older than 15. One should be very careful however when generalizing the data results as the total data merges together data from, likely, very different countries. Arguably,there are significant differences from country to country that can result in significant biased interpretations of the European population as a whole.
+
+----------
+
+### Exploratory data analysis
+
+The data, loaded initially for all variables, has been limited to include only the variables of interest plus the country. The 2,568 NA values (less than 5% of the total) have been omitted to facilitate the study, which results in a data set containing 41,757 valid observations.
+
+```{r full histograms, fig.height=4, fig.width=10, fig.align='center'}
+
+p1 = ggplot(ess, aes(x=rlgdgr)) +
+  geom_bar(fill="#7dd1fa") +
+  scale_y_continuous(lim=c(0,7000), breaks=seq(0,7000, 1000)) +
+  xlab('0 = Not religious at all     10 = Very religious') +
+  ylab('Number of respondents') +
+  ggtitle('How religious are you?')
+
+p2 = ggplot(ess, aes(freehms)) +
+  geom_histogram(fill="#ffb980") +
+  scale_y_continuous(lim=c(0,15250), breaks=seq(0,15000, 2500)) +
+  xlab('1 = Agree strongly     5 = Disagree strongly') +
+  ylab('Number of respondents') +
+  ggtitle('Homosexuals free to live life as they wish')
+  
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+The distribution of **religiosity** from 0 to 10 is a bimodal distribution with peaks on 0, not religious at all, and 5, moderately religious. The distribution is rather flat otherwise. **Homosexual intolerance**  is unimodal and strongly right-skewed, with a higher amount of respondents in the values 1 and 2, "strongly agree" and "agree" respectively.
+
+
+However, the distributions of both variables by country vary greatly from country to country and do not, in most of the cases, resemble the European aggregate shown in the histograms above.
+
+```{r religiosity_country, fig.width=10, fig.height=6.6}
+ggplot(ess, aes(x=rlgdgr)) +
+  geom_bar(fill="#7dd1fa") +
+  xlab('0 = Not religious at all     10 = Very religious') +
+  ylab('Number of respondents') +
+  ggtitle('How religious are you? - Country split') +
+  facet_wrap(~cntry, ncol=6)
+```
+
+```{r views_towards_homosexuals_country, fig.width=10, fig.height=6.6}
+ggplot(ess, aes(x=freehms)) +
+  geom_histogram(fill="#ffb980") +
+  xlab('1 = Agree strongly     5 = Disagree strongly') +
+  ylab('Number of respondents') +
+  ggtitle('Homosexuals free to live life as they wish - Country split') +
+  facet_wrap(~cntry, ncol=6)
+```
+
+The proportion contingency table provides some insight into the relationship between the variables, which becomes clearer by visualizing it.
+
+```{r proportion_contingency_table, fig.align='center'}
+ess_table = table(ess$freehms, ess$rlgdgr)
+
+round(prop.table(ess_table)* 100, 2)
+
+percent_table = prop.table(ess_table, 2)
+
+barplot(as.matrix(percent_table),
+        col=c("#ffb97f", "#dcba99", "#b9bcb3", "#96becc", "#73c0e6"),
+        xlab="How religious are you",
+        ylab="Homosexuals free to live life as they wish",
+        main="Views towards homosexuals by religiosity level",
+        legend.text=TRUE,
+        args.legend=list(x="left", bg="white")
+        )
+```
+
+The plot shows the proportions displayed in the contingency table. The x axis runs along the levels of religiosity and the y axis along the views towards homosexuals. The proportion of respondents who strongly agreed with the statement "Homosexuals free to live life as they wish" appear to grow as the religiosity level approaches zero, "not religious at all". Conversely, it seems to follow the opposite trend as respondents declare themselves "very religious".
+
+-------
+
+### Inference
+The relationship between religiosity and homosexual intolerance can be evaluated using the chi-square independence test. The [conditions](http://www.europeansocialsurvey.org/methodology/index.html) for the applicability of the test are met:
+
+- Sampled observations are independent.
+- Sampling has been done witout replacement.
+- Each case contributes to one cell in the contingency table (see above).
+- Each particular scenario has at least 5 expected cases.
+
+The hypothesis for the test can be established as follows:
+
+- **Null hypothesis:** Religiosity and homosexual intolerance are **independent**. Homosexual intolerance does not vary by levels of religiosity.
+- **Alternative hypothesis:** Religiosity and homosexual intolerance are **dependent**. Homosexual intolerance does vary by levels of religiosity.
+
+```{r inference_function}
+# Load inference function from the course repository
+source("http://bit.ly/dasi_inference")
+inference(y=ess$freehms,
+          x=ess$rlgdgr,
+          est="proportion",
+          type="ht",
+          method="theoretical",
+          alternative="greater",
+          siglevel=0.01)
+```
+
+The result of the inference function for the chi-square test of independence returns a p-value of 2.2e-16, which contrasted with the significance level of 1% applied leads us to reject the null-hypothesis. There is a correlation between religiosity and views towards homosexuals.
+
+----------
+
+### Conclusion
+
+The chi-square test of independence provides strong evidence to reject the null-hypothesis and supports the alternative hypothesis: religiosity and views towards homosexuals are dependent. There is a correlation between the answers given to the statements "how religious are you" and "gays and lesbians free to live life as they wish". Homosexual tolerance seems to increase as religiosity decreases, and viceversa. This however does not allow us to infer a causal link. There might be other factors influencing the variables that have not been accounted for.
+
+```{r echo=FALSE, fig.height=5, fig.width=8, fig.align='center'}
+ggplot(ess, aes(x=rlgdgr, y=freehms)) +
+  geom_jitter(alpha=0.1, colour='#73c0e6') +
+  xlab("How religious are you") +
+  ylab("Homosexuals free to live life as they wish")
+```
+Although not as intuitive as the visualization of the proportion contingency table, this correlation is also hinted at by the distribution of all observations across the levels of homosexual intolerance by the levels of religiosity. Each blue dot corresponds to a single observation. The number of respondents seems to increase towards the lower levels of both homosexual intolerance and religiosity.
+
+--------
+
+**Please note** that this conclusion has been arrived at testing the relationship between the variables for the European countries included in the study as a whole. The same relationship, however, cannot be concluded to exist within any of the countries in the study. Future explorations could be aimed at analyzing the relationship within each country.
+
+This correlation study was carried out as the final project for the course on [Data Analysis and Statistical Inference](https://www.coursera.org/course/statistics) and it can be found on [Github]().
