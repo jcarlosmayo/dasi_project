@@ -186,4 +186,4 @@ Although not as intuitive as the visualization of the proportion contingency tab
 
 **Please note** that this conclusion has been arrived at testing the relationship between the variables for the European countries included in the study as a whole. The same relationship, however, cannot be concluded to exist within any of the countries in the study. Future explorations could be aimed at analyzing the relationship within each country.
 
-This correlation study was carried out as the final project for the course on [Data Analysis and Statistical Inference](https://www.coursera.org/course/statistics) and it can be found on [Github]().
+This correlation study was carried out as the final project for the course on [Data Analysis and Statistical Inference](https://www.coursera.org/course/statistics). The full data can be found on [Github](https://github.com/jcarlosmayo/dasi_project) as well.
