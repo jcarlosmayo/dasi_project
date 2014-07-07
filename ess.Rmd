@@ -9,7 +9,7 @@ library(gridExtra) # Grid plotting for ggplot2
 ```
 
 ### Introduction
-The European Social Survey - ESS -  is an academically driven cross-national survey that has been conducted every two years across Europe since 2001. The survey measures the attitudes, beliefs and behaviour patterns of diverse populations in more than thirty nations. The [sampling](http://www.europeansocialsurvey.org/docs/round6/methods/ESS6_sampling_guidelines.pdf) [methodology](http://www.europeansocialsurvey.org/methodology/index.html) to carry it out follows this key principals:
+The [European Social Survey](http://www.europeansocialsurvey.org/) - ESS -  is an academically driven cross-national survey that has been conducted every two years across Europe since 2001. The survey measures the attitudes, beliefs and behaviour patterns of diverse populations in more than thirty nations. The [sampling](http://www.europeansocialsurvey.org/docs/round6/methods/ESS6_sampling_guidelines.pdf) [methodology](http://www.europeansocialsurvey.org/methodology/index.html) to carry it out follows this key principals:
 
 - Samples must be representative of all persons aged 15 and over (no upper age limit) resident within private households in each country, regardless of their nationality, citizenship or language
 - Individuals are selected by strict random probability methods at every stage
