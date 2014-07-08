@@ -174,7 +174,7 @@ The result of the inference function for the chi-square test of independence ret
 
 The chi-square test of independence provides strong evidence to reject the null-hypothesis and supports the alternative hypothesis: religiosity and views towards homosexuals are dependent. There is a correlation between the answers given to the statements "how religious are you" and "gays and lesbians free to live life as they wish". Homosexual tolerance seems to increase as religiosity decreases, and viceversa. This however does not allow us to infer a causal link. There might be other factors influencing the variables that have not been accounted for.
 
-```{r echo=FALSE, fig.height=5, fig.width=8, fig.align='center'}
+```{r jitter plot, fig.height=5, fig.width=8, fig.align='center'}
 ggplot(ess, aes(x=rlgdgr, y=freehms)) +
   geom_jitter(alpha=0.1, colour='#73c0e6') +
   xlab("How religious are you") +
