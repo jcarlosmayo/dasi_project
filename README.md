@@ -10,7 +10,3 @@ This correlation study was carried out for the course [Data Analysis and Statist
 - Views towards homosexuals, as the response to the statement "gays and lesbians free to live life as they wish", from 1, strongly agree, to 5, strongly disagree.
 
 The result of a chi-square test of independence returns a p-value of 2.2e-16 using a significance level of 1%. There is a correlation between religiosity and views towards homosexuals. Homosexual tolerance seems to increase as religiosity decreases, and viceversa.
-
-### Interactive report
-#### ess_shiny_.RMD
-The country split visualization appears as an interactive visualization using shiny. It has to be run locally.
